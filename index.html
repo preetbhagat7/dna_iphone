@@ -63,22 +63,24 @@ const NAVIGATOR_FP = {
 
 /* ================= B. Screen & Viewport ================= */
 const SCREEN_FP = {
-  screenWidth: screen.width,
-  screenHeight: screen.height,
-  availWidth: screen.availWidth,
-  availHeight: screen.availHeight,
-  devicePixelRatio: window.devicePixelRatio,
-  innerWidth: window.innerWidth,
-  innerHeight: window.innerHeight,
-  outerWidth: window.outerWidth,
-  outerHeight: window.outerHeight,
-  orientation: screen.orientation?.type || "unsupported",
-  visualWidth: window.visualViewport?.width || "null",
-  visualHeight: window.visualViewport?.height || "null",
-  visualScale: window.visualViewport?.scale || 1,
-  safeAreaEstimate: screen.height - window.innerHeight,
-  safeAreaTop: window.visualViewport?.offsetTop || 0,
-  hasNotch: (window.visualViewport?.offsetTop || 0) ;
+  screenWidth: screen.width,                     // Total screen width in pixels
+  screenHeight: screen.height,                   // Total screen height in pixels
+  availWidth: screen.availWidth,                 // Screen width excluding OS taskbars/toolbars
+  availHeight: screen.availHeight,               // Screen height excluding OS taskbars/toolbars
+  devicePixelRatio: window.devicePixelRatio,     // DPR (pixels per CSS pixel)
+  innerWidth: window.innerWidth,                 // Width of the viewport (content area)
+  innerHeight: window.innerHeight,               // Height of the viewport (content area)
+  outerWidth: window.outerWidth,                 // Total window width including browser chrome
+  outerHeight: window.outerHeight,               // Total window height including browser chrome
+  orientation: screen.orientation?.type || "unsupported", // Device orientation
+  visualWidth: window.visualViewport?.width || "null",    // Width of the visual viewport (may shrink with on-screen keyboard)
+  visualHeight: window.visualViewport?.height || "null",  // Height of the visual viewport
+  visualScale: window.visualViewport?.scale || 1,         // Visual viewport scale (zoom)
+  safeAreaEstimate: screen.height - window.innerHeight,   // Rough estimate of top + bottom safe area (status bar, notch)
+  safeAreaTop: window.visualViewport?.offsetTop || 0,     // Exact top safe area (pixels from top)
+  hasNotch: (window.visualViewport?.offsetTop || 0)       // Same as safeAreaTop — numeric value
+};
+
 
 /* ================= C. WebGL ================= */
 function getWebGLFingerprint(){
