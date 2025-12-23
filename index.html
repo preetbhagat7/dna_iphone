@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Device Fingerprint Inspector (A–G)</title>
+<title>Device Fingerprint Inspector</title>
 
 <style>
 body {
@@ -61,25 +61,65 @@ const NAVIGATOR_FP = {
   doNotTrack: navigator.doNotTrack
 };
 
+function getSafeAreaInsets() {
+  const el = document.createElement("div");
+  el.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: constant(safe-area-inset-top);
+    height: env(safe-area-inset-top);
+    width: constant(safe-area-inset-left);
+    width: env(safe-area-inset-left);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-right: env(safe-area-inset-right);
+    visibility: hidden;
+  `;
+  document.body.appendChild(el);
+
+  const styles = getComputedStyle(el);
+
+  const insets = {
+    top: parseInt(styles.height) || 0,
+    left: parseInt(styles.width) || 0,
+    bottom: parseInt(styles.paddingBottom) || 0,
+    right: parseInt(styles.paddingRight) || 0
+  };
+
+  el.remove();
+  return insets;
+}
+
+
 /* ================= B. Screen & Viewport ================= */
+const SAFE_AREA = getSafeAreaInsets();
+
 const SCREEN_FP = {
-  screenWidth: screen.width,                     // Total screen width in pixels
-  screenHeight: screen.height,                   // Total screen height in pixels
-  availWidth: screen.availWidth,                 // Screen width excluding OS taskbars/toolbars
-  availHeight: screen.availHeight,               // Screen height excluding OS taskbars/toolbars
-  devicePixelRatio: window.devicePixelRatio,     // DPR (pixels per CSS pixel)
-  innerWidth: window.innerWidth,                 // Width of the viewport (content area)
-  innerHeight: window.innerHeight,               // Height of the viewport (content area)
-  outerWidth: window.outerWidth,                 // Total window width including browser chrome
-  outerHeight: window.outerHeight,               // Total window height including browser chrome
-  orientation: screen.orientation?.type || "unsupported", // Device orientation
-  visualWidth: window.visualViewport?.width || "null",    // Width of the visual viewport (may shrink with on-screen keyboard)
-  visualHeight: window.visualViewport?.height || "null",  // Height of the visual viewport
-  visualScale: window.visualViewport?.scale || 1,         // Visual viewport scale (zoom)
-  safeAreaEstimate: screen.height - window.innerHeight,   // Rough estimate of top + bottom safe area (status bar, notch)
-  safeAreaTop: window.visualViewport?.offsetTop || 0,     // Exact top safe area (pixels from top)
-  hasNotch: (window.visualViewport?.offsetTop || 0)       // Same as safeAreaTop — numeric value
+  screenWidth: screen.width,
+  screenHeight: screen.height,
+  availWidth: screen.availWidth,
+  availHeight: screen.availHeight,
+  devicePixelRatio: window.devicePixelRatio,
+
+  innerWidth: window.innerWidth,
+  innerHeight: window.innerHeight,
+  outerWidth: window.outerWidth,
+  outerHeight: window.outerHeight,
+
+  orientation: screen.orientation?.type || "unsupported",
+
+  visualWidth: window.visualViewport?.width ?? null,
+  visualHeight: window.visualViewport?.height ?? null,
+  visualScale: window.visualViewport?.scale ?? 1,
+
+  safeAreaTop: SAFE_AREA.top,        // ✅ 44 on iPhone X+
+  safeAreaBottom: SAFE_AREA.bottom,  // ✅ 34 on iPhone X+
+  safeAreaLeft: SAFE_AREA.left,
+  safeAreaRight: SAFE_AREA.right,
+
+  hasNotch: SAFE_AREA.top             // numeric, not boolean
 };
+
 
 
 /* ================= C. WebGL ================= */
