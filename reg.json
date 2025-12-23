@@ -1,0 +1,76 @@
+const IPHONE_REGISTRY = [
+  // --- 2025: 17 Series & 16e ---
+  { n: "iPhone 17 Pro Max", id: "A3257", h: 932, g: "A19", r: 12, z: 120 },
+  { n: "iPhone 17 Pro",     id: "A3256", h: 852, g: "A19", r: 8,  z: 120 },
+  { n: "iPhone 17 Air",     id: "A3114", h: 844, g: "A19", r: 8,  z: 60  },
+  { n: "iPhone 17",         id: "A3110", h: 852, g: "A19", r: 8,  z: 120 },
+  { n: "iPhone 16e",        id: "A3543", h: 844, g: "A18", r: 8,  z: 60  },
+
+  // --- 2024: 16 Series ---
+  { n: "iPhone 16 Pro Max", id: "A3296", h: 932, g: "A18", r: 8,  z: 120 },
+  { n: "iPhone 16 Pro",     id: "A3293", h: 852, g: "A18", r: 8,  z: 120 },
+  { n: "iPhone 16 Plus",    id: "A3290", h: 932, g: "A18", r: 8,  z: 60  },
+  { n: "iPhone 16",         id: "A3287", h: 852, g: "A18", r: 8,  z: 60  },
+
+  // --- 2023: 15 Series ---
+  { n: "iPhone 15 Pro Max", id: "A2849", h: 932, g: "A17", r: 8,  z: 120 },
+  { n: "iPhone 15 Pro",     id: "A2848", h: 852, g: "A17", r: 8,  z: 120 },
+  { n: "iPhone 15 Plus",    id: "A2847", h: 932, g: "A16", r: 6,  z: 60  },
+  { n: "iPhone 15",         id: "A2846", h: 852, g: "A16", r: 6,  z: 60  },
+
+  // --- 2022: 14 Series & SE 3 ---
+  { n: "iPhone 14 Pro Max", id: "A2651", h: 932, g: "A16", r: 6,  z: 120 },
+  { n: "iPhone 14 Pro",     id: "A2650", h: 852, g: "A16", r: 6,  z: 120 },
+  { n: "iPhone 14 Plus",    id: "A2632", h: 926, g: "A15", r: 6,  z: 60  },
+  { n: "iPhone 14",         id: "A2649", h: 844, g: "A15", r: 6,  z: 60  },
+  { n: "iPhone SE (3rd Gen)", id: "A2595", h: 667, g: "A15", r: 4, z: 60  },
+
+  // --- 2021: 13 Series ---
+  { n: "iPhone 13 Pro Max", id: "A2484", h: 926, g: "A15", r: 6,  z: 120 },
+  { n: "iPhone 13 Pro",     id: "A2483", h: 844, g: "A15", r: 6,  z: 120 },
+  { n: "iPhone 13",         id: "A2482", h: 844, g: "A15", r: 4,  z: 60  },
+  { n: "iPhone 13 mini",    id: "A2481", h: 812, g: "A15", r: 4,  z: 60  },
+
+  // --- 2020: 12 Series & SE 2 ---
+  { n: "iPhone 12 Pro Max", id: "A2342", h: 926, g: "A14", r: 6,  z: 60  },
+  { n: "iPhone 12 Pro",     id: "A2341", h: 844, g: "A14", r: 6,  z: 60  },
+  { n: "iPhone 12",         id: "A2172", h: 844, g: "A14", r: 4,  z: 60  },
+  { n: "iPhone 12 mini",    id: "A2176", h: 812, g: "A14", r: 4,  z: 60  },
+  { n: "iPhone SE (2nd Gen)", id: "A2275", h: 667, g: "A13", r: 3, z: 60  },
+
+  // --- 2019: 11 Series ---
+  { n: "iPhone 11 Pro Max", id: "A2218", h: 896, g: "A13", r: 4,  z: 60  },
+  { n: "iPhone 11 Pro",     id: "A2097", h: 812, g: "A13", r: 4,  z: 60  },
+  { n: "iPhone 11",         id: "A2111", h: 896, g: "A13", r: 4,  z: 60  },
+
+  // --- 2018: X / XS / XR ---
+  { n: "iPhone XS Max",     id: "A1921", h: 896, g: "A12", r: 4,  z: 60  },
+  { n: "iPhone XS",         id: "A1920", h: 812, g: "A12", r: 4,  z: 60  },
+  { n: "iPhone XR",         id: "A1984", h: 896, g: "A12", r: 3,  z: 60  },
+
+  // --- 2017: X & 8 Series ---
+  { n: "iPhone X",          id: "A1865", h: 812, g: "A11", r: 3,  z: 60  },
+  { n: "iPhone 8 Plus",     id: "A1864", h: 736, g: "A11", r: 3,  z: 60  },
+  { n: "iPhone 8",          id: "A1863", h: 667, g: "A11", r: 2,  z: 60  },
+
+  // --- 2016: 7 Series & SE 1 ---
+  { n: "iPhone 7 Plus",     id: "A1661", h: 736, g: "A10", r: 3,  z: 60  },
+  { n: "iPhone 7",          id: "A1660", h: 667, g: "A10", r: 2,  z: 60  },
+  { n: "iPhone SE (1st Gen)", id: "A1662", h: 568, g: "A9", r: 2, z: 60  },
+
+  // --- 2015–2012: Legacy 64-bit ---
+  { n: "iPhone 6s Plus",    id: "A1634", h: 736, g: "A9",  r: 2,  z: 60  },
+  { n: "iPhone 6s",         id: "A1633", h: 667, g: "A9",  r: 2,  z: 60  },
+  { n: "iPhone 6 Plus",     id: "A1522", h: 736, g: "A8",  r: 1,  z: 60  },
+  { n: "iPhone 6",          id: "A1549", h: 667, g: "A8",  r: 1,  z: 60  },
+  { n: "iPhone 5s",         id: "A1533", h: 568, g: "A7",  r: 1,  z: 60  },
+
+  // --- 2012–2007: 32-bit Legacy ---
+  { n: "iPhone 5c",         id: "A1532", h: 568, g: "A6",  r: 1,    z: 60 },
+  { n: "iPhone 5",          id: "A1428", h: 568, g: "A6",  r: 1,    z: 60 },
+  { n: "iPhone 4s",         id: "A1387", h: 480, g: "A5",  r: 0.5,  z: 60 },
+  { n: "iPhone 4",          id: "A1332", h: 480, g: "A4",  r: 0.5,  z: 60 },
+  { n: "iPhone 3GS",        id: "A1303", h: 480, g: "S5L8920", r: 0.25, z: 60 },
+  { n: "iPhone 3G",         id: "A1241", h: 480, g: "S5L8900", r: 0.12, z: 60 },
+  { n: "iPhone (Original)", id: "A1203", h: 480, g: "S5L8900", r: 0.12, z: 60 }
+];
