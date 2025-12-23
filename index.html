@@ -1,188 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iDNA v2 - Probabilistic Device Detector</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Device Fingerprint Inspector (A–G)</title>
+
 <style>
-body { font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:#f5f5f7; color:#1d1d1f; margin:0; padding:20px;}
-.card { max-width:480px; margin:0 auto; background:#fff; border-radius:24px; box-shadow:0 10px 30px rgba(0,0,0,0.1); overflow:hidden;}
-.header { padding:30px 20px; text-align:center; border-bottom:1px solid #eee;}
-.model-name { font-size:28px; font-weight:700; margin:0;}
-.sub-text { font-size:14px; color:#666; margin-top:5px;}
-.grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:#eee;}
-.grid-item { background:#fff; padding:15px;}
-.label { font-size:10px; color:#888; font-weight:700; text-transform:uppercase;}
-.value { font-size:16px; font-weight:600; margin-top:3px; color:#0071e3;}
+body {
+  margin: 0; padding: 16px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+  background: #0f172a; color: #e5e7eb;
+}
+h1 { text-align:center; margin-bottom:24px; }
+section {
+  background:#020617; border-radius:12px; padding:16px; margin-bottom:16px;
+  box-shadow:0 0 0 1px #1e293b;
+}
+h2 { margin-top:0; margin-bottom:10px; font-size:18px; color:#38bdf8; }
+table { width:100%; border-collapse:collapse; font-size:14px; }
+td { padding:6px 4px; vertical-align:top; }
+td:first-child { width:42%; color:#94a3b8; }
+.value { color:#e5e7eb; word-break:break-all; }
 </style>
 </head>
-<body>
 
-<div class="card">
-  <div class="header">
-    <h1 id="model-name" class="model-name">Detecting Device...</h1>
-    <p id="model-info" class="sub-text">Please wait</p>
-  </div>
-  <div class="grid">
-    <div class="grid-item"><div class="label">Screen Width</div><div id="w" class="value">--</div></div>
-    <div class="grid-item"><div class="label">Screen Height</div><div id="h" class="value">--</div></div>
-    <div class="grid-item"><div class="label">Inner Width</div><div id="innerW" class="value">--</div></div>
-    <div class="grid-item"><div class="label">Inner Height</div><div id="innerH" class="value">--</div></div>
-    <div class="grid-item"><div class="label">Safe Area (Top)</div><div id="safe" class="value">--</div></div>
-    <div class="grid-item"><div class="label">Device Pixel Ratio</div><div id="dpr" class="value">--</div></div>
-  </div>
-</div>
+<body>
+<h1>📱 Device Fingerprint Inspector (A–G)</h1>
+
+<section><h2>A. Navigator</h2><table id="navTable"></table></section>
+<section><h2>B. Screen & Viewport</h2><table id="screenTable"></table></section>
+<section><h2>C. WebGL (GPU)</h2><table id="gpuTable"></table></section>
+<section><h2>D. WebGPU</h2><table id="webgpuTable"></table></section>
+<section><h2>E. Performance & Memory</h2><table id="perfTable"></table></section>
+<section><h2>F. Media Capabilities</h2><table id="mediaTable"></table></section>
+<section><h2>G. Canvas & Font Fingerprinting</h2><table id="canvasTable"></table></section>
 
 <script>
-// --- Feature Groups Registry ---
-const REGISTRY_FEATURE_GROUPS = [
-    // --- Feature Group: 440x956 / 390x820 / s:62 / dpr:3 ---
-    {
-        feature: { w:440, h:956, innerW:390, innerH:820, s:62, dpr:3 },
-        devices: [{ n:"iPhone 17 Pro Max" }]
-    },
-    // --- Feature Group: 402x874 / 358x740 / s:62 / dpr:3 ---
-    {
-        feature: { w:402, h:874, innerW:358, innerH:740, s:62, dpr:3 },
-        devices: [{ n:"iPhone 17 Pro" }, { n:"iPhone 17" }]
-    },
-    // --- Feature Group: 420x912 / 376x776 / s:68 / dpr:3 ---
-    {
-        feature: { w:420, h:912, innerW:376, innerH:776, s:68, dpr:3 },
-        devices: [{ n:"iPhone 17 Air" }]
-    },
-    // --- Feature Group: 430x932 / 390x796 / s:59 / dpr:3 ---
-    {
-        feature: { w:430, h:932, innerW:390, innerH:796, s:59, dpr:3 },
-        devices: [{ n:"iPhone 16 Plus" }, { n:"iPhone 15 Pro Max" }, { n:"iPhone 15 Plus" }]
-    },
-    // --- Feature Group: 402x874 / 358x740 / s:59 / dpr:3 ---
-    {
-        feature: { w:402, h:874, innerW:358, innerH:740, s:59, dpr:3 },
-        devices: [{ n:"iPhone 16 Pro" }]
-    },
-    // --- Feature Group: 393x852 / 358x722 / s:59 / dpr:3 ---
-    {
-        feature: { w:393, h:852, innerW:358, innerH:722, s:59, dpr:3 },
-        devices: [{ n:"iPhone 16" }, { n:"iPhone 15 Pro" }, { n:"iPhone 15" }]
-    },
-    // --- Feature Group: 428x926 / 390x796 / s:47 / dpr:3 ---
-    {
-        feature: { w:428, h:926, innerW:390, innerH:796, s:47, dpr:3 },
-        devices: [{ n:"iPhone 14 Plus" }, { n:"iPhone 12 Pro Max" }, { n:"iPhone 13 Pro Max" }]
-    },
-    // --- Feature Group: 393x852 / 358x722 / s:47 / dpr:3 ---
-    {
-        feature: { w:393, h:852, innerW:358, innerH:722, s:47, dpr:3 },
-        devices: [{ n:"iPhone 14 Pro" }, { n:"iPhone 12 Pro" }, { n:"iPhone 12" }]
-    },
-    // --- Feature Group: 390x844 / 358x714 / s:47 / dpr:3 ---
-    {
-        feature: { w:390, h:844, innerW:358, innerH:714, s:47, dpr:3 },
-        devices: [{ n:"iPhone 14" }, { n:"iPhone 13 Pro" }, { n:"iPhone 13" }]
-    },
-    // --- Feature Group: 375x812 / 340x680 / s:47 / dpr:3 ---
-    {
-        feature: { w:375, h:812, innerW:340, innerH:680, s:47, dpr:3 },
-        devices: [{ n:"iPhone 13 mini" }, { n:"iPhone 12 mini" }]
-    },
-    // --- Feature Group: 414x896 / 375x765 / s:44 / dpr:3 ---
-    {
-        feature: { w:414, h:896, innerW:375, innerH:765, s:44, dpr:3 },
-        devices: [{ n:"iPhone 11 Pro Max" }, { n:"iPhone XS Max" }]
-    },
-    // --- Feature Group: 375x812 / 340x680 / s:44 / dpr:3 ---
-    {
-        feature: { w:375, h:812, innerW:340, innerH:680, s:44, dpr:3 },
-        devices: [{ n:"iPhone 11 Pro" }, { n:"iPhone XS" }, { n:"iPhone X" }]
-    },
-    // --- Feature Group: 414x896 / 375x765 / s:48 / dpr:2 ---
-    {
-        feature: { w:414, h:896, innerW:375, innerH:765, s:48, dpr:2 },
-        devices: [{ n:"iPhone 11" }, { n:"iPhone XR" }]
-    },
-    // --- Feature Group: 414x736 / 375x622 / s:20 / dpr:3 ---
-    {
-        feature: { w:414, h:736, innerW:375, innerH:622, s:20, dpr:3 },
-        devices: [{ n:"iPhone 8 Plus" }, { n:"iPhone 7 Plus" }, { n:"iPhone 6s Plus" }, { n:"iPhone 6 Plus" }]
-    },
-    // --- Feature Group: 375x667 / 320x553 / s:20 / dpr:2 ---
-    {
-        feature: { w:375, h:667, innerW:320, innerH:553, s:20, dpr:2 },
-        devices: [{ n:"iPhone SE (3rd Gen)" }, { n:"iPhone SE (2nd Gen)" }, { n:"iPhone 8" }, { n:"iPhone 7" }, { n:"iPhone 6s" }, { n:"iPhone 6" }, { n:"iPhone SE (1st Gen)" }]
-    },
-    // --- Feature Group: 320x568 / 280x460 / s:20 / dpr:2 ---
-    {
-        feature: { w:320, h:568, innerW:280, innerH:460, s:20, dpr:2 },
-        devices: [{ n:"iPhone 5s" }, { n:"iPhone 5c" }, { n:"iPhone 5" }]
-    },
-    // --- Feature Group: 320x480 / 280x372 / s:20 / dpr:2 ---
-    {
-        feature: { w:320, h:480, innerW:280, innerH:372, s:20, dpr:2 },
-        devices: [{ n:"iPhone 4s" }, { n:"iPhone 4" }]
-    },
-    // --- Feature Group: 320x480 / 280x372 / s:0 / dpr:1 ---
-    {
-        feature: { w:320, h:480, innerW:280, innerH:372, s:0, dpr:1 },
-        devices: [{ n:"iPhone 3GS" }, { n:"iPhone 3G" }, { n:"iPhone (Original)" }]
-    }
-];
-
-
-// --- Probabilistic detection engine ---
-function detectDeviceFeatures() {
-  const w = Math.min(window.screen.width, window.screen.height);
-  const h = Math.max(window.screen.width, window.screen.height);
-  const dpr = window.devicePixelRatio;
-
-  // Safe area (notch)
-  const div = document.createElement("div");
-  div.style.paddingTop = "env(safe-area-inset-top)";
-  document.body.appendChild(div);
-  const sRaw = window.getComputedStyle(div).paddingTop;
-  const safe = parseInt(sRaw) || 0;
-  document.body.removeChild(div);
-
-  const innerW = window.innerWidth;
-  const innerH = window.innerHeight;
-
-  // Update UI
-  document.getElementById("w").innerText = w;
-  document.getElementById("h").innerText = h;
-  document.getElementById("innerW").innerText = innerW;
-  document.getElementById("innerH").innerText = innerH;
-  document.getElementById("safe").innerText = safe + "px";
-  document.getElementById("dpr").innerText = dpr.toFixed(2);
-
-  // Probabilistic scoring
-  const tolerance = 10; // px tolerance for inner sizes
-  const scores = REGISTRY_FEATURE_GROUPS.map(group => {
-    let score = 0;
-    if(group.feature.w === w) score += 3;
-    if(group.feature.h === h) score += 3;
-    if(Math.abs(group.feature.innerW - innerW) <= tolerance) score += 2;
-    if(Math.abs(group.feature.innerH - innerH) <= tolerance) score += 2;
-    if(group.feature.s === safe) score += 1;
-    if(group.feature.dpr === dpr) score += 3;
-    return { group, score };
-  });
-
-  scores.sort((a,b)=>b.score-a.score);
-
-  const best = scores[0];
-  if(best.score > 0) {
-    const devices = best.group.devices.map(d=>d.n).join(", ");
-    document.getElementById("model-name").innerText = devices;
-    document.getElementById("model-info").innerText = "Best match (probabilistic score: "+best.score+")";
-  } else {
-    document.getElementById("model-name").innerText = "Unknown Device";
-    document.getElementById("model-info").innerText = "No probable match found";
+/* ================= Helper Function ================= */
+function renderTable(tableId, data){
+  const table = document.getElementById(tableId);
+  table.innerHTML = "";
+  for(const key in data){
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${key}</td><td class="value">${data[key]}</td>`;
+    table.appendChild(row);
   }
 }
 
-window.onload = detectDeviceFeatures;
+/* ================= A. Navigator ================= */
+const NAVIGATOR_FP = {
+  userAgent: navigator.userAgent,
+  platform: navigator.platform,
+  vendor: navigator.vendor,
+  language: navigator.language,
+  languages: navigator.languages?.join(", "),
+  hardwareConcurrency: navigator.hardwareConcurrency || "unknown",
+  deviceMemory: navigator.deviceMemory || "undefined",
+  maxTouchPoints: navigator.maxTouchPoints,
+  cookieEnabled: navigator.cookieEnabled,
+  doNotTrack: navigator.doNotTrack
+};
+
+/* ================= B. Screen & Viewport ================= */
+const SCREEN_FP = {
+  screenWidth: screen.width,
+  screenHeight: screen.height,
+  availWidth: screen.availWidth,
+  availHeight: screen.availHeight,
+  devicePixelRatio: window.devicePixelRatio,
+  innerWidth: window.innerWidth,
+  innerHeight: window.innerHeight,
+  outerWidth: window.outerWidth,
+  outerHeight: window.outerHeight,
+  orientation: screen.orientation?.type || "unsupported",
+  visualWidth: window.visualViewport?.width || "null",
+  visualHeight: window.visualViewport?.height || "null",
+  visualScale: window.visualViewport?.scale || 1,
+  safeAreaEstimate: screen.height - window.innerHeight
+};
+
+/* ================= C. WebGL ================= */
+function getWebGLFingerprint(){
+  const canvas=document.createElement("canvas");
+  const gl=canvas.getContext("webgl")||canvas.getContext("experimental-webgl");
+  if(!gl) return {WebGL:"Not supported"};
+  return {
+    vendor: gl.getParameter(gl.VENDOR),
+    renderer: gl.getParameter(gl.RENDERER),
+    maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+    maxCubeMapSize: gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE),
+    maxRenderBuffer: gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),
+    shaderPrecision: gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision
+  };
+}
+
+/* ================= D. WebGPU ================= */
+async function getWebGPUFingerprint(){
+  if(!navigator.gpu) return {WebGPU:"Not supported"};
+  const adapter=await navigator.gpu.requestAdapter();
+  if(!adapter) return {WebGPU:"No adapter"};
+  return {
+    architecture: adapter.info?.architecture || "unknown",
+    device: adapter.info?.device || "unknown",
+    limits: JSON.stringify(adapter.limits)
+  };
+}
+
+/* ================= E. Performance & Memory ================= */
+const PERF_FP = {
+  jsHeapLimit: performance.memory ? performance.memory.jsHeapSizeLimit : "unsupported",
+  timing: JSON.stringify(performance.timing),
+  now: performance.now().toFixed(2) + " ms"
+};
+
+/* ================= F. Media Capabilities ================= */
+const MEDIA_FP = {
+  videoH264: document.createElement("video").canPlayType('video/mp4; codecs="avc1.42E01E"'),
+  videoHEVC: document.createElement("video").canPlayType('video/mp4; codecs="hvc1"'),
+  audioAAC: document.createElement("audio").canPlayType("audio/aac"),
+  audioOpus: document.createElement("audio").canPlayType('audio/ogg; codecs=opus')
+};
+
+/* ================= G. Canvas & Font Fingerprinting ================= */
+function getCanvasFP(){
+  const canvas=document.createElement("canvas");
+  const ctx=canvas.getContext("2d");
+  ctx.textBaseline="top";
+  ctx.font="16px Arial";
+  ctx.fillText("fingerprint😀",2,2);
+  const textWidth=ctx.measureText("mmmmmmmmmm").width;
+  const emojiWidth=ctx.measureText("😀").width;
+  return {
+    canvasData: canvas.toDataURL().slice(0,120),
+    fontSampleWidth: textWidth,
+    emojiSampleWidth: emojiWidth
+  };
+}
+
+/* ================= RENDER ALL ================= */
+renderTable("navTable", NAVIGATOR_FP);
+renderTable("screenTable", SCREEN_FP);
+renderTable("gpuTable", getWebGLFingerprint());
+renderTable("perfTable", PERF_FP);
+renderTable("mediaTable", MEDIA_FP);
+renderTable("canvasTable", getCanvasFP());
+getWebGPUFingerprint().then(fp=>renderTable("webgpuTable",fp));
 </script>
 </body>
 </html>
-
-<!-- change file name -->
