@@ -78,8 +78,7 @@ const SCREEN_FP = {
   visualScale: window.visualViewport?.scale || 1,
   safeAreaEstimate: screen.height - window.innerHeight,
   safeAreaTop: window.visualViewport?.offsetTop || 0,
-  hasNotch: (window.visualViewport?.offsetTop || 0) > 20
-};
+  hasNotch: (window.visualViewport?.offsetTop || 0) ;
 
 /* ================= C. WebGL ================= */
 function getWebGLFingerprint(){
