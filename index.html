@@ -76,7 +76,9 @@ const SCREEN_FP = {
   visualWidth: window.visualViewport?.width || "null",
   visualHeight: window.visualViewport?.height || "null",
   visualScale: window.visualViewport?.scale || 1,
-  safeAreaEstimate: screen.height - window.innerHeight
+  safeAreaEstimate: screen.height - window.innerHeight,
+  safeAreaTop: window.visualViewport?.offsetTop || 0,
+  hasNotch: (window.visualViewport?.offsetTop || 0) > 20
 };
 
 /* ================= C. WebGL ================= */
